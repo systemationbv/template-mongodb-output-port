@@ -1,0 +1,22 @@
+apiVersion: witboost.com/v2
+kind: ReverseProvisioningTemplate
+metadata:
+  name: mongodb-outputport-reverse-provisioning-template.1
+spec:
+  useCaseTemplateId:
+    - urn:dmb:utm:mongodb-outputport-template:0.0.0
+  parameters:
+    required:
+      - database
+    properties:
+      database:
+        title: Source database name
+        type: string
+        description: The MongoDB database that contains the collections to be published on this Output Port.
+      collections:
+        title: Source collections names
+        type: array
+        description: List an optional set of collections to import. Leaving this field empty will import all collection present on the Source database
+        default: []
+        items:
+          type: string

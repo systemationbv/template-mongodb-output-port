@@ -1,0 +1,92 @@
+%SKELETON
+{% set dataProductNameWithTrims = parameters.dataproduct.split(".")[1] | replace(r/ /g, "-") %}
+{% set componentNameWithTrims = parameters.name.split(" ") | reject("equalto", "") | join("-") | lower %}
+{% set dataProductMajorVersion = parameters.identifier.split(".")[2] %}
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ parameters.identifier }}
+  description: ${{ parameters.description | dump }}
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - outputport
+    - mongodb
+spec:
+  type: outputport
+  lifecycle: experimental
+  owner: ${{ parameters.owner | dump }}
+  system: ${{ parameters.dataproduct | dump }}
+  domain: ${{ parameters.domain | dump }}
+  mesh:
+    name: ${{ parameters.name | dump }}
+    fullyQualifiedName: ${{ parameters.domainName }} - ${{ parameters.dataproductName }} - version ${{ dataProductMajorVersion }} - ${{ parameters.name }}
+    description: ${{ parameters.description | dump}}
+    kind: outputport
+    infrastructureTemplateId: ${{ values.infrastructureTemplateId }}
+    useCaseTemplateId: ${{ values.useCaseTemplateId }}
+    dependsOn: {% if parameters.dependsOn | length > 0 %}{% for i in parameters.dependsOn %}
+      - ${{ i }}{% endfor %}{% else %}[]{% endif %}
+    platform: MongoDB
+    technology: MongoDB
+    outputPortType: SQL
+    tags: {% if parameters.tags | length > 0 %}{% for i in parameters.tags %}
+      - tagFQN: ${{ i }}
+        source: Classification
+        labelType: Manual
+        state: Confirmed{% endfor %}{% else %}[]{% endif %}
+    processDescription: ${{ parameters.processDescription | dump }}
+    dataContract:
+      termsAndConditions: ${{ parameters.termsAndConditions }}
+      SLA:
+        intervalOfChange: ${{ parameters.intervalOfChange }}
+        timeliness: ${{ parameters.timeliness }}
+        upTime: ${{ parameters.upTime }}
+    dataSharingAgreement:
+      purpose: ${{ parameters.purpose | dump }}
+      billing: ${{ parameters.billing | dump }}
+      security: ${{ parameters.security | dump }}
+      intendedUsage: ${{ parameters.intendedUsage | dump }}
+      limitations: ${{ parameters.limitations | dump }}
+      lifeCycle: ${{ parameters.lifeCycle | dump }}
+      confidentiality: ${{ parameters.confidentiality | dump }}
+    sampleData: {}
+    semanticLinking: []
+    specific:
+      database: ${{ env.database }}
+    consumable: false
+    shoppable: false
+  components: {% if parameters.subcomponentDefinition.components | length > 0 %}{% for component in parameters.subcomponentDefinition.components %}
+    - name: ${{ parameters.name }} - ${{ component.collection }}
+      fullyQualifiedName: ${{ parameters.domainName }} - ${{ parameters.dataproductName }} - version ${{ dataProductMajorVersion }} - ${{ parameters.name }} - ${{ component.collection }}
+      description: ${{ component.description | dump }}
+      kind: outputport
+      infrastructureTemplateId: ${{ values.infrastructureTemplateId }}
+      useCaseTemplateId: ${{ values.useCaseTemplateSubId }}
+      dependsOn: []
+      platform: MongoDB
+      technology: MongoDB
+      outputPortType: SQL
+      tags: {% if parameters.tags | length > 0 %}{% for i in parameters.tags %}
+        - tagFQN: ${{ i }}
+          source: Classification
+          labelType: Manual
+          state: Confirmed{% endfor %}{% else %}[]{% endif %}
+      dataContract:
+        termsAndConditions: ${{ parameters.termsAndConditions }}
+        SLA:
+          intervalOfChange: ${{ parameters.intervalOfChange }}
+          timeliness: ${{ parameters.timeliness }}
+          upTime: ${{ parameters.upTime }}
+      semanticLinking: []
+      specific:
+        collection: ${{ component.collection | dump }}
+        {%- if component.jsonschema %}
+        valueSchema:
+          type: JSON
+          definition: ${{ component.jsonschema | replace(r/\t/g, "  ") | dump }}
+        {% endif %}
+      consumable: true
+      shoppable: true
+  {% endfor %}{% else %}[]{% endif %}
