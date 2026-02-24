@@ -272,15 +272,15 @@ spec:
           infrastructureTemplateId: urn:dmb:itm:mongodb-tech-adapter:1
           rootDirectory: "."
 
-          destination: &destination 'gitlab.com?owner=AgileDMBSandbox%2F${{orgname}}%2Fmesh.repository%2F${{ parameters.domain | replace(r/domain:| |-/, "") }}%2F${{ parameters.dataproduct.split(".")[1] | replace(r/ |-/g, "") }}&repo=${{ parameters.name.split(" ") | join("") | lower }}'
+          destination: &destination 'github.com?owner=systemationbv&repo=${{ parameters.name }}'
 
           useCaseTemplateVersion: 0.0.0
 
     - id: publish
       name: Publish
-      action: witboostMeshComponent:publish:gitlab
+      action: witboostMeshComponent:publish:github
       input:
-        allowedHosts: ["gitlab.com"]
+        allowedHosts: ["github.com"]
         description: "This is ${{ parameters.name }}"
         repoUrl: *destination
         rootDirectory: "."
